@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #001e4d;
+        }
+
+        .app {
+            background: #fff;
+            width: 90%;
+            max-width: 600px;
+            margin: 100px auto 0;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .app h1 {
+            font-size: 25px;
+            color: #001e4d;
+            font-weight: 600;
+            border-bottom: 1px solid #333;
+            padding-bottom: 30px;
+        }
+
+        .quiz {
+            padding: 20px 0;
+        }
+
+        .quiz h2 {
+            font-size: 18px;
+            color: #001e4d;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: #fff;
+            color: #222;
+            font-weight: 500;
+            width: 100%;
+            border: 1px solid #222;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn:hover:not([disabled]) {
+            background: #222;
+            color: #fff;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+        }
+
+        #next-btn {
+            background: #001e4d;
+            color: #fff;
+            font-weight: 500;
+            width: 150px;
+            border: 0;
+            padding: 10px;
+            margin: 20px auto 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .correct {
+            background: #28a745;
+            color: white;
+        }
+
+        .incorrect {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>Simple Quiz</h1>
+        <div class="quiz">
+            <h2 id="question">Question goes here</h2>
+            <div id="answer-buttons"></div>
+        </div>
+        <button id="next-btn">Next</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the largest animal in the world?",
+                answers: [
+                    { text: "Elephant", correct: false },
+                    { text: "Blue Whale", correct: true },
+                    { text: "Giraffe", correct: false },
+                    { text: "Shark", correct: false }
+                ]
+            },
+            {
+                question: "Which is the smallest continent in the world?",
+                answers: [
+                    { text: "Australia", correct: true },
+                    { text: "Asia", correct: false },
+                    { text: "Arctic", correct: false },
+                    { text: "Africa", correct: false }
+                ]
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                answers: [
+                    { text: "Earth", correct: false },
+                    { text: "Mars", correct: true },
+                    { text: "Jupiter", correct: false },
+                    { text: "Venus", correct: false }
+                ]
+            },
+            {
+                question: "Who wrote the play 'Romeo and Juliet'?",
+                answers: [
+                    { text: "William Wordsworth", correct: false },
+                    { text: "William Shakespeare", correct: true },
+                    { text: "Charles Dickens", correct: false },
+                    { text: "Jane Austen", correct: false }
+                ]
+            },
+            {
+                question: "Which gas do plants absorb from the atmosphere?",
+                answers: [
+                    { text: "Oxygen", correct: false },
+                    { text: "Nitrogen", correct: false },
+                    { text: "Carbon Dioxide", correct: true },
+                    { text: "Hydrogen", correct: false }
+                ]
+            },
+            {
+                question: "What is the capital of Japan?",
+                answers: [
+                    { text: "Kyoto", correct: false },
+                    { text: "Osaka", correct: false },
+                    { text: "Tokyo", correct: true },
+                    { text: "Hiroshima", correct: false }
+                ]
+            },
+            {
+                question: "What is the hardest natural substance on Earth?",
+                answers: [
+                    { text: "Gold", correct: false },
+                    { text: "Iron", correct: false },
+                    { text: "Diamond", correct: true },
+                    { text: "Quartz", correct: false }
+                ]
+            },
+            {
+                question: "Which ocean is the largest?",
+                answers: [
+                    { text: "Atlantic Ocean", correct: false },
+                    { text: "Indian Ocean", correct: false },
+                    { text: "Arctic Ocean", correct: false },
+                    { text: "Pacific Ocean", correct: true }
+                ]
+            },
+            {
+                question: "In which year did World War II end?",
+                answers: [
+                    { text: "1945", correct: true },
+                    { text: "1939", correct: false },
+                    { text: "1942", correct: false },
+                    { text: "1950", correct: false }
+                ]
+            },
+            {
+                question: "Which is the longest river in the world?",
+                answers: [
+                    { text: "Amazon River", correct: false },
+                    { text: "Nile River", correct: true },
+                    { text: "Yangtze River", correct: false },
+                    { text: "Mississippi River", correct: false }
+                ]
+            },
+            {
+                question: "How many continents are there on Earth?",
+                answers: [
+                    { text: "5", correct: false },
+                    { text: "6", correct: false },
+                    { text: "7", correct: true },
+                    { text: "8", correct: false }
+                ]
+            },
+            {
+                question: "Who is known as the Father of Computers?",
+                answers: [
+                    { text: "Albert Einstein", correct: false },
+                    { text: "Charles Babbage", correct: true },
+                    { text: "Isaac Newton", correct: false },
+                    { text: "Alan Turing", correct: false }
+                ]
+            }
+        ];
+
+        const questionElement = document.getElementById("question");
+        const answerButtons = document.getElementById("answer-buttons");
+        const nextButton = document.getElementById("next-btn");
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            nextButton.innerText = "Next";
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            let currentQuestion = questions[currentQuestionIndex];
+            let questionNo = currentQuestionIndex + 1;
+            questionElement.innerText = questionNo + ". " + currentQuestion.question;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement("button");
+                button.innerText = answer.text;
+                button.classList.add("btn");
+                if (answer.correct) {
+                    button.dataset.correct = answer.correct;
+                }
+                button.addEventListener("click", selectAnswer);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            nextButton.style.display = "none";
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const isCorrect = selectedBtn.dataset.correct === "true";
+
+            if (isCorrect) {
+                selectedBtn.classList.add("correct");
+                score++;
+            } else {
+                selectedBtn.classList.add("incorrect");
+            }
+
+            Array.from(answerButtons.children).forEach(button => {
+                if (button.dataset.correct === "true") {
+                    button.classList.add("correct");
+                }
+                button.disabled = true;
+            });
+
+            nextButton.style.display = "block";
+        }
+
+        function showScore() {
+            resetState();
+            questionElement.innerText = `You scored ${score} out of ${questions.length}!`;
+            nextButton.innerText = "Play Again";
+            nextButton.style.display = "block";
+        }
+
+        function handleNextButton() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        nextButton.addEventListener("click", () => {
+            if (nextButton.innerText === "Play Again") {
+                startQuiz();
+            } else {
+                handleNextButton();
+            }
+        });
+
+        startQuiz();
+    </script>
+</body>
+</html>
+ 
